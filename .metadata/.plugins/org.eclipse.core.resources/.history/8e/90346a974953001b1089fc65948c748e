@@ -1,0 +1,875 @@
+package dao.entities;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.Date;
+//import java.util.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import javax.swing.AbstractButton;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+
+import com.toedter.calendar.JDateChooser;
+
+import dao.CRUD;
+import dao.Commande;
+import dao.SingletonConnection;
+import dao.entities.ArticleImp;
+import dao.exception.QuantiteException;
+import dao.exception.allException;
+import dao.exception.testVideException;
+//import shared.DatePicker;
+import shared.menu;
+
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import javax.swing.JSpinner;
+import javax.swing.JList;
+import java.awt.FlowLayout;
+import javax.swing.BoxLayout;
+import java.awt.CardLayout;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+
+public class CommandeImple  implements CRUD , Commande{
+	JScrollPane scrollPane ;
+	private JComboBox article;
+	private JFrame frame;
+	private JTable table = new JTable();
+	JButton btnAjouter;
+	JButton btnEdit;
+	JButton btndelete;
+	private JTextField chercher;
+	private JButton btnchercher;
+	//private JTextField libellel;
+	private JTextField quantitel;
+	//private JTextField prixl;
+	//private JTextField codePostall;
+	private JLabel label;
+	private JButton btnNewButton;
+	private JDateChooser datel;
+	JButton payer ;
+	int tQuantite=0;
+	int nbArticle = CalculeNb() ;
+	private JComboBox clientl;
+	public int CalculeNb() {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+        int nb = 0;
+		try {
+		ps = cx.prepareStatement("SELECT COUNT(idArticle) from article ");
+       rs=ps.executeQuery();
+		
+       while (rs.next()) {
+			nb=rs.getInt(1);			
+		}		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return nb;
+		
+	}
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					CommandeImple window = new CommandeImple();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public CommandeImple() {
+		
+		initialize();
+
+		frame = new JFrame();
+		frame.getContentPane().setBackground(new Color(204, 204, 255));
+		frame.getContentPane().setLayout(null);
+		frame.setSize(855, 462);
+		frame.getContentPane().setLayout(null);
+		//frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		frame.setVisible(true);
+		frame.setTitle("Gestion des commandes");
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.LIGHT_GRAY);
+		panel.setBounds(0, 0, 177, 443);
+		frame.getContentPane().add(panel);
+		
+		menu.menuitems(frame,panel);
+	
+		JPanel panel_1 = new JPanel();
+		panel_1.setBounds(187, 244, 640, 167);
+		frame.getContentPane().add(panel_1);
+		
+		getAll();
+		 panel_1.setLayout(new FlowLayout(FlowLayout.LEFT));
+		//panel_1.setLayout(new GridLayout(1,1));
+	
+		 scrollPane = new JScrollPane(table);
+		 scrollPane.setEnabled(false);
+		 scrollPane.setSize(635, 169);
+		scrollPane.setViewportBorder(null);
+		table.setForeground(new Color(0, 0, 0));
+		panel_1.add(scrollPane);
+		
+		JLabel lblLibell = new JLabel("Article:");
+		lblLibell.setBounds(187, 70, 46, 14);
+		frame.getContentPane().add(lblLibell);
+		
+		
+		
+		
+		 btnAjouter = new JButton("Ajouter");
+		 btnAjouter.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		try {
+					ajouter();
+				} catch (allException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}catch (testVideException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				
+				} catch (QuantiteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		 	}
+		 });
+		btnAjouter.setBounds(187, 187, 89, 23);
+		frame.getContentPane().add(btnAjouter);
+		
+		 btnEdit = new JButton("Modifier");
+		 btnEdit.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		try {
+					modifier((int)table.getValueAt(table.getSelectedRow(), 0));
+				} catch (NumberFormatException | testVideException  e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (QuantiteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		 	}
+		 });
+		btnEdit.setBounds(302, 187, 89, 23);
+		frame.getContentPane().add(btnEdit);
+		btnEdit.setEnabled(false);
+		
+		btndelete = new JButton("Supprimer");
+		btndelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				supprimer((int)table.getValueAt(table.getSelectedRow(), 0));
+				
+			}
+		});
+		btndelete.setBounds(430, 187, 124, 23);
+		frame.getContentPane().add(btndelete);
+		btndelete.setEnabled(false);
+		
+		chercher = new JTextField();
+		chercher.setBounds(473, 219, 86, 20);
+		frame.getContentPane().add(chercher);
+		chercher.setColumns(10);
+		
+		btnchercher = new JButton("Recherche");
+		btnchercher.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rechercher();
+			}
+		});
+		btnchercher.setBounds(569, 218, 105, 23);
+		frame.getContentPane().add(btnchercher);
+		
+		JLabel lblGestionCatgories = new JLabel("Gestion Commande");
+		lblGestionCatgories.setFont(new Font("Arial", Font.BOLD, 16));
+		lblGestionCatgories.setBounds(348, 11, 166, 31);
+		frame.getContentPane().add(lblGestionCatgories);
+		
+		JLabel lblQuantite = new JLabel("Quantite:");
+		lblQuantite.setBounds(187, 143, 73, 14);
+		frame.getContentPane().add(lblQuantite);
+		/*
+		libellel = new JTextField();
+		
+		libellel.setColumns(10);
+		libellel.setBounds(281, 67, 124, 20);
+		frame.getContentPane().add(libellel);
+		*/
+		quantitel = new JTextField();
+		quantitel.setColumns(10);
+		quantitel.setBounds(281, 140, 124, 20);
+		quantitel.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent ke) {
+				String value = quantitel.getText();
+	            int l = value.length();
+	            if (ke.getKeyChar() >= '0' && ke.getKeyChar() <= '9' || ke.getExtendedKeyCode() == KeyEvent.VK_BACK_SPACE) {
+	            	quantitel.setEditable(true);
+	               label.setText("");
+	            } else {
+	            	quantitel.setEditable(false);
+	            	
+	              label.setText("Seulement des numéros sont autorisés");
+	            }
+			}
+		});
+		frame.getContentPane().add(quantitel);
+		
+	 
+		JLabel lblDate = new JLabel("Date :");
+		lblDate.setBounds(451, 143, 46, 14);
+		frame.getContentPane().add(lblDate);
+		
+		
+		label = new JLabel("");
+		label.setFont(new Font("Arial", Font.PLAIN, 15));
+		label.setForeground(Color.RED);
+		label.setBounds(302, 40, 327, 14);
+		frame.getContentPane().add(label);
+		
+		btnNewButton = new JButton("Actualiser");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				actualiser();
+			}
+		});
+		article = new JComboBox();
+		article.setBounds(281, 67, 124, 20);
+		frame.getContentPane().add(article);
+		article.addItem("selectionner");
+		ArticleList();
+		btnNewButton.setBounds(569, 187, 133, 23);
+		frame.getContentPane().add(btnNewButton);
+		
+		 datel = new JDateChooser();
+		datel.setDateFormatString("yyyy-MM-dd");
+		datel.setBounds(547, 143, 124, 14);
+		frame.getContentPane().add(datel);
+		
+		clientl = new JComboBox();;
+		clientl.setBounds(588, 64, 124, 20);
+		clientl.addItem("selectionner");
+		clientList();
+		frame.getContentPane().add(clientl);
+		
+		JLabel lbclient = new JLabel("Nom de client");
+		lbclient.setBounds(451, 70, 86, 14);
+		frame.getContentPane().add(lbclient);
+	
+		
+
+			
+		
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	@Override
+	public void getAll() {
+		String[] columnNames = {"id",
+				 "Libelle",
+	                "Quantite",
+	                "Prix",
+	                "date",
+	                "nombre Article",
+	                "Nom Client",
+	                "Livre",
+	                "Action"
+               };
+		DefaultTableModel model = new DefaultTableModel();
+		model.setColumnIdentifiers(columnNames);
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				article.setSelectedItem(article.getSelectedItem().toString());
+				
+				quantitel.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 2)));
+				clientl.setSelectedItem(clientl.getSelectedItem().toString());
+
+			
+				System.out.println(String.valueOf(table.getValueAt(table.getSelectedRow(), 4)));
+				try {
+					datel.setDate(new SimpleDateFormat("yyyy-MM-dd").parse(String.valueOf(table.getValueAt(table.getSelectedRow(), 4) )));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				btnAjouter.setEnabled(false);
+				btnEdit.setEnabled(true);
+				btndelete.setEnabled(true);
+				
+				
+			}
+		});
+		table.setFont(new Font("Arial", Font.PLAIN, 14));
+		table.setModel(model); 
+		
+		table.setBounds(187, 50, 634, 168);
+		
+		JButton supprimer = new JButton("supprimer");
+		supprimer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ArticleImp art = new ArticleImp();
+				frame.dispose();
+			}
+		});
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		payer = new JButton("Paiement");
+		payer.addActionListener(
+			      new ActionListener()
+			      {
+			        public void actionPerformed(ActionEvent event)
+			        {
+			        	TestJDialog d;
+			        	
+			        	if(table.getValueAt(table.getSelectedRow(), 7).equals("reçu")) {
+			          JOptionPane.showMessageDialog(null,"Commande deja payée");}
+			        	else {
+			        	d = new TestJDialog((int)table.getValueAt(table.getSelectedRow(), 0));}
+			        	actualiser();
+						
+			        }
+			      }
+			    );
+		try {
+			
+		ps = cx.prepareStatement("select * from commande");
+		
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			model.addRow(new Object[]{rs.getInt(1),rs.getString(2),rs.getInt(4),rs.getInt(7),rs.getString(8),rs.getInt(3),getClient(rs.getInt(6)),testLivre(rs.getBoolean(9))});
+		
+		    
+		}
+		table.getColumn("Action").setCellRenderer(new ButtonRenderer());
+	    table.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox(),payer));
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	public void actualiser() {
+		getAll();
+		article.setSelectedIndex(0);
+		
+		quantitel.setText("");
+		clientl.setSelectedIndex(0);
+		//prixl.setText(calculePrix());
+		datel.setDate( new java.sql.Date(0000));
+		btnAjouter.setEnabled(true);
+		btnEdit.setEnabled(false);
+		btndelete.setEnabled(false);
+		
+	}
+	@Override
+public void ajouter() throws allException, testVideException ,QuantiteException{
+		
+		
+	
+			Connection cx= SingletonConnection.getConnection();
+			PreparedStatement ps;
+				ResultSet rs;
+			testVide();
+			
+			testQuantite();
+			try {
+			
+			ps = cx.prepareStatement("INSERT INTO commande (`libelle`, `prix_tot`, `quantite`, `date` , `nbArticle`,`idArticle`,`idClient`,`livre`) VALUES(?,?,?,?,?,?,?,?)");
+			
+			ps.setString(1,article.getSelectedItem().toString());
+			ps.setInt(2,calculePrix());
+			ps.setInt(3,Integer.parseInt(quantitel.getText()));
+
+			java.util.Date utilDate = new java.util.Date();
+			utilDate = datel.getDate();
+			Date sqlDate = new Date(utilDate.getTime());
+			ps.setDate(4, sqlDate);
+			ps.setInt(5,nbArticle);
+			
+			
+			ps.setInt(6,getId((article.getSelectedItem().toString())));
+			ps.setInt(7,getIdClient((clientl.getSelectedItem().toString())));
+			ps.setBoolean(8,false);
+			setArticle();
+			ps.executeUpdate();
+			actualiser();
+
+			
+			}catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//}
+		
+		
+	}
+
+
+	@Override
+	public void modifier(int id) throws testVideException, QuantiteException {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+
+		testVide();
+		
+		testQuantite();
+		try {
+		
+		ps = cx.prepareStatement("update commande set  `libelle`= ? , `prix_tot`= ? , `quantite` = ?, `date` = ? , `nbArticle` = ?,`idArticle` = ?,`idClient` = ? where idCommande=?");
+		ps.setString(1,(article.getSelectedItem().toString()));
+		ps.setInt(2,calculePrix());
+		ps.setInt(3,Integer.parseInt(quantitel.getText()));
+
+		java.util.Date utilDate = new java.util.Date();
+		utilDate = datel.getDate();
+		Date sqlDate = new Date(utilDate.getTime());
+		ps.setDate(4, sqlDate);
+		ps.setInt(5,nbArticle);
+		ps.setInt(6,getId((article.getSelectedItem().toString())));
+		ps.setInt(7,getIdClient(clientl.getSelectedItem().toString()));
+	    ps.setInt(8, id);
+	    setArticle();
+		ps.executeUpdate();
+		actualiser();
+
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+public void supprimer(int id) {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		
+		try {
+		ps = cx.prepareStatement("DELETE from commande where idCommande=?");
+		
+		
+		ps.setInt(1, id);
+		ps.executeUpdate();
+		actualiser();
+
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void rechercher() {
+		
+		String[] columnNames = {"id",
+                "Libelle",
+                "Quantite",
+                "Prix",
+                "date",
+                "nombre Article",
+                "Nom Client"
+               };
+		DefaultTableModel model = new DefaultTableModel();
+		model.setColumnIdentifiers(columnNames);
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+                article.setSelectedItem(table.getValueAt(table.getSelectedRow(), 1));
+				
+				quantitel.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 2)));
+				
+				//prixl.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 4)));
+				try {
+					datel.setDate(new SimpleDateFormat("yyyy-MM-dd").parse(String.valueOf(table.getValueAt(table.getSelectedRow(), 4) )));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				btnAjouter.setEnabled(false);
+				btnEdit.setEnabled(true);
+				btndelete.setEnabled(true);
+				
+				
+			}
+		});
+		table.setFont(new Font("Arial", Font.PLAIN, 14));
+		table.setModel(model); 
+		
+		table.setBounds(187, 50, 487, 306);
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from commande where libelle LIKE ? '%'   or quantite LIKE ? '%' or idClient LIKE ? '%' ");
+		
+		ps.setString(1, chercher.getText());
+		ps.setString(2, chercher.getText());
+		ps.setString(3, chercher.getText());
+		
+
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			model.addRow(new Object[]{rs.getInt(1),rs.getString(2),rs.getInt(4),rs.getInt(7),rs.getString(8),rs.getInt(3),getClient(rs.getInt(6))});				
+					
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	
+	
+	
+}
+
+
+	@Override
+	public int select() {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from commande where libelle LIKE  ? ");
+		ps.setString(1, article.getSelectedItem().toString());
+		rs=ps.executeQuery();
+		
+		if(rs.next()) {
+			return 1;
+		}
+		else return -1 ;
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	public String testype() {
+		String user="";
+		if(this.getClass().getName().equals("CommandeImple")) {
+			user="fournisseur";
+		}else if(this.getClass().getName().equals("ClientImp")) {
+			user="client";
+		}
+		String user1="fournisseur";
+		return user1;
+	}
+	public void testVide() throws testVideException {
+		if(article.getSelectedItem().toString().length()==0  || quantitel.getText().length()==0 || datel.getDate().equals(null) ) throw new testVideException();
+	}
+
+	public int getId(String s) {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		int a=0;
+		try {
+			ps = cx.prepareStatement("select idArticle from article where libelle LIKE ? '%'    ");
+
+		ps.setString(1,s);
+		
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			a=rs.getInt(1);			
+			System.out.println(a);
+
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return a;
+	}
+	public String getClient(int i) {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		String a=null;
+		try {
+			ps = cx.prepareStatement("select prenom from client where cin = ?    ");
+
+		ps.setInt(1,i);
+		
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			a=rs.getString(1);	
+			System.out.println(a);
+					
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return a;
+	}
+	public int getIdClient(String s) {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		int a=0;
+		try {
+			ps = cx.prepareStatement("select cin from client where prenom LIKE ? '%'    ");
+
+		ps.setString(1,s);
+		
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			a=rs.getInt(1);	
+			System.out.println(a);
+					
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return a;
+	}
+	public int calculePrix() {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		int a=0;
+		try {
+			ps = cx.prepareStatement("select prix from article where libelle LIKE ? '%'    ");
+
+		ps.setString(1,article.getSelectedItem().toString());
+		
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			
+			a=rs.getInt(1);			
+			System.out.println(a);	
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return a*Integer.parseInt(quantitel.getText());
+	}
+	public String testLivre(boolean t) {
+	
+		if(t) {
+			return "reçu";
+		}
+		else {
+			return "non reçu";
+		}
+		
+	}
+	public void testQuantite() throws QuantiteException {
+		Connection cx= SingletonConnection.getConnection();
+		int qArticle = 0;
+		PreparedStatement ps;
+		ResultSet rs ;
+		try {
+			ps = cx.prepareStatement("select quantite from article where libelle LIKE ? '%'");
+			ps.setString(1,article.getSelectedItem().toString());
+			System.out.println("////"+article.getSelectedItem().toString());
+			rs=ps.executeQuery();
+                 while(rs.next()) {
+				qArticle=rs.getInt(1);
+				tQuantite=rs.getInt(1);
+				System.out.println(qArticle);}
+				rs=ps.executeQuery();
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		int qCom=Integer.parseInt(quantitel.getText());
+		System.out.println(qCom);
+		System.out.println(qArticle);
+		if(qCom>qArticle) {throw new QuantiteException();}
+		
+		
+	}
+	public void ArticleList() {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select libelle from article ORDER BY libelle ASC");
+		rs=ps.executeQuery();
+		while(rs.next()) {
+			article.addItem(rs.getString(1));
+			
+		}
+		
+		
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+public void clientList() {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select prenom from client ORDER BY prenom ASC");
+		rs=ps.executeQuery();
+		while(rs.next()) {
+			clientl.addItem(rs.getString(1));
+			
+		}
+		
+		
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+public int selectNbVendre() {
+	
+	Connection cx= SingletonConnection.getConnection();
+	PreparedStatement ps;
+	ResultSet rs;
+	int s=0;
+	try {
+		ps = cx.prepareStatement("select `nbVendre` from article  where idArticle=?");
+		ps.setInt(1,getId((article.getSelectedItem().toString())));
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+		s= rs.getInt(1);}
+	
+	
+	
+	}catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return s;
+	
+}
+public void setArticle() {
+	Connection cx= SingletonConnection.getConnection();
+	PreparedStatement ps;
+	try {
+		ps = cx.prepareStatement("update article set `nbVendre`=? , `quantite`=?  where idArticle=?");
+		ps.setInt(1,(Integer.parseInt(quantitel.getText())+selectNbVendre()));
+		ps.setInt(2,tQuantite-Integer.parseInt(quantitel.getText()));
+		ps.setInt(3,getId((article.getSelectedItem().toString())));
+		ps.executeUpdate();
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+}
+	 class ButtonEditor extends DefaultCellEditor 
+	  {
+	    private String label;
+	    JButton b = new JButton();
+	    public ButtonEditor(JCheckBox checkBox,JButton b)
+	    {
+	    	super(checkBox);
+	    	this.b = b;
+	      
+	    }
+	    public Component getTableCellEditorComponent(JTable table, Object value,
+	    boolean isSelected, int row, int column) 
+	    {
+	      label = (value == null) ? "Paiement" : value.toString();
+	      b.setText(label);
+	      return b;
+	    }
+	    public Object getCellEditorValue() 
+	    {
+	      return new String(label);
+	    }
+	  }
+}

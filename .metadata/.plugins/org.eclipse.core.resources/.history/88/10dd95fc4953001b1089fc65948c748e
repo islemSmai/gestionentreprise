@@ -1,0 +1,126 @@
+package shared;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import dao.entities.Accueil;
+import dao.entities.ArticleImp;
+import dao.entities.CategorieImp;
+import dao.entities.ClientImp;
+import dao.entities.CommandeImple;
+import dao.entities.ConnexionImp;
+import dao.entities.FournisseurImp;
+import dao.entities.RemiseImp;
+
+public abstract class menu {
+
+
+	public static void menuitems(JFrame frame, JPanel panel) {
+		JButton btnAccueil = new JButton("Accueil");
+		
+		btnAccueil.setBackground(new Color(204, 204, 255));
+		btnAccueil.setFont(new Font("Calibri", Font.PLAIN, 18));
+		btnAccueil.setBounds(10, 23, 141, 36);
+		btnAccueil.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Accueil ac = new Accueil();
+				frame.dispose();
+			}
+		});
+		panel.setLayout(null);
+		panel.add(btnAccueil);
+		
+		JButton btnArticle = new JButton("Articles");
+		btnArticle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ArticleImp art = new ArticleImp();
+				frame.dispose();
+			}
+		});
+		btnArticle.setFont(new Font("Calibri", Font.PLAIN, 18));
+		btnArticle.setBackground(new Color(204, 204, 255));
+		btnArticle.setBounds(10, 70, 141, 36);
+		panel.add(btnArticle);
+		
+		JButton btnFournisseurs = new JButton("Fournisseurs");
+		btnFournisseurs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				FournisseurImp fournisseur = new FournisseurImp();
+				frame.dispose();
+			}
+		});
+		btnFournisseurs.setFont(new Font("Calibri", Font.PLAIN, 18));
+		btnFournisseurs.setBackground(new Color(204, 204, 255));
+		btnFournisseurs.setBounds(10, 117, 141, 36);
+		panel.add(btnFournisseurs);
+		
+		JButton btnCommandes = new JButton("Commandes");
+		btnCommandes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 new CommandeImple();
+				frame.dispose();
+			}
+		});
+		btnCommandes.setFont(new Font("Calibri", Font.PLAIN, 18));
+		btnCommandes.setBackground(new Color(204, 204, 255));
+		btnCommandes.setBounds(10, 164, 141, 36);
+		panel.add(btnCommandes);
+		
+		JButton btnCategories = new JButton("Categories");
+		btnCategories.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				CategorieImp categorie = new CategorieImp();
+				frame.dispose();
+			}
+		});
+		btnCategories.setFont(new Font("Calibri", Font.PLAIN, 18));
+		btnCategories.setBackground(new Color(204, 204, 255));
+		btnCategories.setBounds(10, 211, 141, 36);
+		panel.add(btnCategories);
+		
+		JButton btnRemises = new JButton("Clients");
+		btnRemises.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ClientImp remise = new ClientImp();
+				frame.dispose();
+			}
+		});
+		btnRemises.setFont(new Font("Calibri", Font.PLAIN, 18));
+		btnRemises.setBackground(new Color(204, 204, 255));
+		btnRemises.setBounds(10, 258, 141, 36);
+		panel.add(btnRemises);
+		
+		JButton btnDconnexion = new JButton("D\u00E9connexion");
+		btnDconnexion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new ConnexionImp();
+				frame.dispose();
+			}
+		});
+		btnDconnexion.setFont(new Font("Calibri", Font.PLAIN, 18));
+		btnDconnexion.setBackground(new Color(204, 204, 255));
+		btnDconnexion.setBounds(10, 396, 141, 36);
+		panel.add(btnDconnexion);
+		
+		JButton btnRemises_1 = new JButton("Remises");
+		btnRemises_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RemiseImp remise = new RemiseImp();
+				frame.dispose();
+			}
+		});
+		btnRemises_1.setFont(new Font("Calibri", Font.PLAIN, 18));
+		btnRemises_1.setBackground(new Color(204, 204, 255));
+		btnRemises_1.setBounds(10, 305, 141, 36);
+		panel.add(btnRemises_1);
+		frame.setBackground(Color.YELLOW);
+		frame.setBounds(100, 100, 755, 482);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	}

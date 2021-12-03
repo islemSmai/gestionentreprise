@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="javax.swing.JPanel"/>
+<fullyQualifiedTypeName name="javax.swing.JScrollBar"/>
+<fullyQualifiedTypeName name="javax.swing.JScrollPane"/>
+<fullyQualifiedTypeName name="com.mysql.jdbc.Connection"/>
+<fullyQualifiedTypeName name="dao.SingletonConnection"/>
+<fullyQualifiedTypeName name="com.mysql.jdbc.PreparedStatement"/>
+<fullyQualifiedTypeName name="java.sql.ResultSet"/>
+<fullyQualifiedTypeName name="java.sql.SQLException"/>
+<fullyQualifiedTypeName name="dao.classes.Categorie"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="java.awt.List"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="javax.swing.JTable"/>
+<fullyQualifiedTypeName name="javax.swing.table.TableCellRenderer"/>
+<fullyQualifiedTypeName name="dao.exception.categoriesException"/>
+<fullyQualifiedTypeName name="java.lang.Exception"/>
+<fullyQualifiedTypeName name="javax.swing.JOptionPane"/>
+<fullyQualifiedTypeName name="dao.entities.FournisseurImp"/>
+<fullyQualifiedTypeName name="dao.CRUD"/>
+<fullyQualifiedTypeName name="dao.exception.testVideException"/>
+<fullyQualifiedTypeName name="shared.users"/>
+<fullyQualifiedTypeName name="shared.menu"/>
+<fullyQualifiedTypeName name="dao.entities.RemiseImp"/>
+<fullyQualifiedTypeName name="dao.entities.Connexion"/>
+<fullyQualifiedTypeName name="dao.entities.CommandeImple"/>
+<fullyQualifiedTypeName name="dao.entities.ConnexionImp"/>
+<fullyQualifiedTypeName name="java.awt.Dimension"/>
+<fullyQualifiedTypeName name="java.awt.Toolkit"/>
+</qualifiedTypeNameHistroy>

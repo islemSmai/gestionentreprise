@@ -1,0 +1,493 @@
+package dao.entities;
+
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+
+import dao.CRUD;
+import dao.SingletonConnection;
+import dao.exception.allException;
+import dao.exception.testVideException;
+import shared.menu;
+
+import java.awt.Color;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.awt.event.ActionEvent;
+import java.awt.Font;
+import java.awt.GridLayout;
+
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JComboBox;
+
+public class RemiseImp implements CRUD {
+
+	private JFrame frame;
+	private JTable table = new JTable();
+	JButton btnAjouter;
+	JButton btnEdit;
+	JButton btndelete;
+	private JTextField chercher;
+	private JButton btnchercher;
+	private JComboBox articlel;
+	private JLabel lblRemise;
+	private JComboBox remisel;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					RemiseImp window = new RemiseImp();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public RemiseImp() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		
+		
+		
+		frame = new JFrame();
+		frame.getContentPane().setBackground(new Color(204, 204, 255));
+		frame.getContentPane().setLayout(null);
+		frame.setSize(1006, 460);
+		frame.setVisible(true);
+		frame.setTitle("Gestion Remises");
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.LIGHT_GRAY);
+		panel.setBounds(0, 0, 177, 443);
+		frame.getContentPane().add(panel);
+		
+		menu.menuitems(frame,panel);
+		JLabel lblGestionCatgories = new JLabel("Gestion Remises");
+		lblGestionCatgories.setFont(new Font("Arial", Font.BOLD, 16));
+		lblGestionCatgories.setBounds(363, 11, 166, 31);
+		frame.getContentPane().add(lblGestionCatgories);
+		
+		
+		
+		
+		
+		
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBounds(187, 314, 767, 141);
+		frame.getContentPane().add(panel_1);
+		panel_1.setLayout(new GridLayout(0, 1, 0, 0));
+		
+		
+		getAll(); 
+		
+		
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setViewportBorder(null);
+		panel_1.add(scrollPane);
+		table.setForeground(new Color(0, 0, 0));
+		
+		JLabel lblLibell = new JLabel("Articles:");
+		lblLibell.setBounds(187, 67, 70, 14);
+		frame.getContentPane().add(lblLibell);
+		
+		
+		 btnAjouter = new JButton("Ajouter");
+		 btnAjouter.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		try {
+					ajouter();
+				} catch (allException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		 	}
+		 });
+		btnAjouter.setBounds(187, 173, 89, 23);
+		frame.getContentPane().add(btnAjouter);
+		
+		 btnEdit = new JButton("Modifier");
+		 btnEdit.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		modifier((int)table.getValueAt(table.getSelectedRow(), 0));
+		 	}
+		 });
+		btnEdit.setBounds(302, 173, 89, 23);
+		frame.getContentPane().add(btnEdit);
+		btnEdit.setEnabled(false);
+		
+		btndelete = new JButton("Supprimer");
+		btndelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				supprimer((int)table.getValueAt(table.getSelectedRow(), 0));
+				
+			}
+		});
+		btndelete.setBounds(572, 173, 124, 23);
+		frame.getContentPane().add(btndelete);
+		btndelete.setEnabled(false);
+		
+		chercher = new JTextField();
+		chercher.setBounds(753, 281, 86, 20);
+		frame.getContentPane().add(chercher);
+		chercher.setColumns(10);
+		
+		btnchercher = new JButton("Recherche");
+		btnchercher.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rechercher();
+			}
+		});
+		btnchercher.setBounds(849, 280, 105, 23);
+		frame.getContentPane().add(btnchercher);
+		
+		JButton btnNewButton = new JButton("Actualiser");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				actualiser();
+			}
+		});
+		btnNewButton.setBounds(727, 173, 133, 23);
+		frame.getContentPane().add(btnNewButton);
+		
+		articlel = new JComboBox();
+		articlel.setBounds(267, 64, 114, 20);
+		frame.getContentPane().add(articlel);
+		
+		lblRemise = new JLabel("Remise :");
+		lblRemise.setBounds(573, 64, 70, 14);
+		frame.getContentPane().add(lblRemise);
+		
+		remisel = new JComboBox();
+		remisel.setBounds(653, 61, 114, 20);
+		frame.getContentPane().add(remisel);
+		articlel.addItem("selectionner");
+		remisel.addItem("selectionner");
+		
+		articleList();
+		remiseList();
+		
+	}
+	
+	
+
+	//table click
+	
+	
+	public void actualiser() {
+		getAll();
+		articlel.setSelectedIndex(0);
+		remisel.setSelectedIndex(0);
+		
+		btnAjouter.setEnabled(true);
+		btnEdit.setEnabled(false);
+		btndelete.setEnabled(false);
+	}
+	
+	
+	@Override
+	public void ajouter() throws allException {
+		
+		
+		if(select()==1) throw new allException();
+		
+		
+		else if(select()==-1) {
+			Connection cx= SingletonConnection.getConnection();
+			PreparedStatement ps;
+			
+			try {
+			ps = cx.prepareStatement("INSERT INTO `remise` (`idArticle` , `remise`) VALUES(?,?)");
+			
+			float rem = (remisel.getSelectedIndex()) * 5;
+			ps.setInt(1, getTheId(articlel.getSelectedItem().toString()));
+			ps.setFloat(2,rem);
+			ps.executeUpdate();
+			actualiser();
+
+			
+			}catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			}
+		
+		
+	}
+
+	@Override
+	public void modifier(int id) {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		
+		try {
+			float rem = (remisel.getSelectedIndex()) * 5;
+		ps = cx.prepareStatement("update remise set idArticle= ? , remise= ? where idRemise=?");
+		ps.setInt(1, getTheId(articlel.getSelectedItem().toString()));
+		ps.setFloat(2, rem);
+		ps.setInt(3, id);
+		ps.executeUpdate();
+		actualiser();
+
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void supprimer(int id) {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		
+		try {
+		ps = cx.prepareStatement("DELETE from remise where idRemise=?");
+		
+		ps.setInt(1, id);
+		ps.executeUpdate();
+		actualiser();
+
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void rechercher() {
+		
+			String[] columnNames = {"#",
+	                "article",
+	                "remise"
+	               };
+			DefaultTableModel model = new DefaultTableModel();
+			model.setColumnIdentifiers(columnNames);
+			
+			table.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					articlel.setSelectedItem(String.valueOf(table.getValueAt(table.getSelectedRow(), 1)));
+					int i = (int) ((Float.parseFloat(String.valueOf(table.getValueAt(table.getSelectedRow(), 2)))) /5);
+					remisel.setSelectedIndex(i);
+					btnAjouter.setEnabled(false);
+					btnEdit.setEnabled(true);
+					btndelete.setEnabled(true);
+					
+					
+				}
+			});
+			table.setFont(new Font("Arial", Font.PLAIN, 14));
+			table.setModel(model); 
+			
+			table.setBounds(187, 50, 487, 306);
+			
+			Connection cx= SingletonConnection.getConnection();
+			PreparedStatement ps;
+			ResultSet rs;
+			
+			
+			try {
+			ps = cx.prepareStatement("select * from remise where idArticle LIKE ? '%' ");
+			ps.setInt(1, getTheId(chercher.getText()));
+			rs=ps.executeQuery();
+			
+			while (rs.next()) {
+				model.addRow(new Object[]{rs.getInt(1),getTheLibelle(rs.getInt(2)),rs.getFloat(3)});
+						
+			}
+			
+			}catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		
+		
+		
+	}
+
+	@Override
+	public void getAll() {
+		String[] columnNames = {"#",
+                "article",
+                "remise"
+               };
+		DefaultTableModel model = new DefaultTableModel();
+		model.setColumnIdentifiers(columnNames);
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				articlel.setSelectedItem(String.valueOf(table.getValueAt(table.getSelectedRow(), 1)));
+				int i = (int) ((Float.parseFloat(String.valueOf(table.getValueAt(table.getSelectedRow(), 2)))) /5);
+				remisel.setSelectedIndex(i);
+				btnAjouter.setEnabled(false);
+				btnEdit.setEnabled(true);
+				btndelete.setEnabled(true);
+				
+				
+			}
+		});
+		table.setFont(new Font("Arial", Font.PLAIN, 14));
+		table.setModel(model); 
+		
+		table.setBounds(187, 50, 487, 306);
+		
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		
+		try {
+		ps = cx.prepareStatement("select * from remise");
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			
+			
+			
+			model.addRow(new Object[]{rs.getInt(1),getTheLibelle(rs.getInt(2)),rs.getFloat(3)});
+			
+						
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public int select() {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from remise where idArticle LIKE  ? ");
+		ps.setInt(1, getTheId(articlel.getSelectedItem().toString()));
+		rs=ps.executeQuery();
+		
+		if(rs.next()) {
+			return 1;
+		}
+		else return -1 ;
+		
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	@Override
+	public void testVide() throws testVideException {
+		// TODO Auto-generated method stub
+		if(articlel.getSelectedIndex()==0 || remisel.getSelectedIndex()==0) throw new testVideException();
+		
+	}
+	
+	public void articleList() {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from article ");
+		rs=ps.executeQuery();
+		while(rs.next()) {
+			articlel.addItem(rs.getString(2));
+			
+		}
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	public void remiseList() {
+		for(int i=1 ; i<=20;i++)
+		{
+			remisel.addItem(i*5 + " %");
+		}
+	}
+	
+	public int getTheId(String s) {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from article where libelle =  ? ");
+		ps.setString(1, s);
+		rs=ps.executeQuery();
+		while(rs.next()) {
+			return rs.getInt(1);
+		}
+		
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+public String getTheLibelle(int id) {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from article where idArticle =  ? ");
+		ps.setInt(1, id);
+		rs=ps.executeQuery();
+		while(rs.next()) {
+			return rs.getString(2);
+		}
+		
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+}

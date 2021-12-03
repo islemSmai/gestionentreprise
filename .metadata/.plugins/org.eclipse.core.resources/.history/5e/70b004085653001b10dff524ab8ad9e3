@@ -1,0 +1,193 @@
+package dao.entities;
+
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import dao.SingletonConnection;
+
+public class TestJDialog {
+	JLabel article ;
+	JLabel client;
+	JLabel quantiter;
+	JLabel lblPrixRemise;
+	JLabel lblPrixTotal;
+	JLabel prixRemise;
+	JLabel prix;
+	public TestJDialog(int id) {
+		initialize(id);
+	}
+	
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize(int id) {
+				//On crée une nouvelle instance de notre JDialog
+				JDialog dialog = new JDialog();
+				dialog.setSize(300,150);//On lui donne une taille
+				dialog.setTitle("Paiement"); //On lui donne un titre
+				
+				dialog.setVisible(true);
+					JPanel p =new JPanel();
+					 GridLayout gl = new GridLayout(6,1);
+					   p.setLayout(gl);
+					JLabel lblNomDuClient = new JLabel("Nom du client :");
+					lblNomDuClient.setBounds(10, 11, 89, 27);
+					p.add(lblNomDuClient);
+					
+					 client = new JLabel("New label");
+					client.setBounds(194, 14, 80, 20);
+					p.add(client);
+					
+					JLabel lblQuantiterDuCommende = new JLabel("quantite du commende");
+					lblQuantiterDuCommende.setBounds(10, 60, 121, 14);
+					p.add(lblQuantiterDuCommende);
+					
+					quantiter = new JLabel("New label");
+					quantiter.setBounds(194, 60, 46, 14);
+					p.add(quantiter);
+					
+					JLabel lblArticle = new JLabel("Article");
+					lblArticle.setBounds(10, 105, 110, 14);
+					p.add(lblArticle);
+					
+					 article = new JLabel("New label");
+					article.setBounds(194, 105, 46, 14);
+					p.add(article);
+					
+					lblPrixTotal = new JLabel("Prix Total");
+					lblPrixTotal.setBounds(10, 149, 89, 14);
+					p.add(lblPrixTotal);
+				      
+					prix = new JLabel("New label");
+					prix.setBounds(194, 149, 46, 14);
+					p.add(prix);
+					lblPrixRemise = new JLabel("Prix apres la remise");
+					lblPrixRemise.setBounds(10, 149, 89, 14);
+					p.add(lblPrixRemise);
+					prixRemise = new JLabel("New label");
+					prixRemise.setBounds(194, 149, 46, 14);
+					p.add(prixRemise);
+					JButton btnPayer = new JButton("Payer");
+					btnPayer.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							Connection cx= SingletonConnection.getConnection();
+							PreparedStatement ps;
+							
+								
+								try {
+									ps = cx.prepareStatement("update commande set  `livre`= ? where idCommande=?");
+
+									ps.setBoolean(1,true);
+									ps.setInt(2,id);
+
+									ps.executeUpdate();
+									dialog.dispose();
+
+								} catch (SQLException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+								
+								
+							
+							
+						}
+					});
+					btnPayer.setBounds(258, 210, 89, 23);
+					getData(id);
+					p.add(btnPayer);
+					 dialog.add(p);
+					
+				}
+				public String getClientPa(int i) {
+					Connection cx= SingletonConnection.getConnection();
+					PreparedStatement ps;
+					ResultSet rs;
+					String a=null;
+					try {
+						ps = cx.prepareStatement("select prenom from client where cin = ?    ");
+
+					ps.setInt(1,i);
+					
+					rs=ps.executeQuery();
+					
+					while (rs.next()) {
+						a=rs.getString(1);	
+						System.out.println(a);
+								
+					}
+					
+					}catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return a;
+				}
+				public void getData(int id) {
+					Connection cx= SingletonConnection.getConnection();
+					PreparedStatement ps;
+					ResultSet rs;
+					int a=0;
+						try {
+							ps = cx.prepareStatement("select * from commande where idCommande=?");
+							
+							ps.setInt(1,id);
+							rs=ps.executeQuery();
+						while (rs.next()) {
+							article.setText(rs.getString(2));
+							client.setText(getClientPa(rs.getInt(6)));
+							a=rs.getInt(5);
+							quantiter.setText(""+rs.getInt(4));
+							prix.setText(""+rs.getInt(7));
+						}
+						
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+						System.out.println("a = "+a);
+						getRemise(a);
+				}
+			//On la rend visible
+				//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //On dit à l'application de se fermer lors du clic sur la croix
+				public void getRemise(int id) {
+					Connection cx= SingletonConnection.getConnection();
+					PreparedStatement ps2;
+					ResultSet rs2;
+					int s=0;
+					int p=Integer.parseInt(prix.getText());
+					try {
+						
+						ps2 = cx.prepareStatement("select remise from remise where idArticle=?");
+						ps2.setInt(1,id);
+						rs2=ps2.executeQuery();
+						if(!rs2.next()) {
+							prixRemise.setText(prix.getText());
+						}
+						else{
+							
+							s=p-(rs2.getInt(1)*p/100);
+						prixRemise.setText(""+s);
+						
+						}System.out.println("prix"+p+"somme"+s);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					
+				}
+}

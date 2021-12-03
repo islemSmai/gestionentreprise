@@ -1,0 +1,616 @@
+package dao.entities;
+
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+
+import dao.CRUD;
+import dao.SingletonConnection;
+import dao.exception.allException;
+import dao.exception.testVideException;
+import shared.menu;
+
+import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import javax.swing.JList;
+import javax.swing.JComboBox;
+import java.awt.GridLayout;
+
+public class ArticleImp  implements CRUD{
+
+	private JFrame frame;
+	private JTable table = new JTable();
+	JButton btnAjouter;
+	JButton btnEdit;
+	JButton btndelete;
+	private JTextField chercher;
+	private JButton btnchercher;
+	private JTextField libellel;
+	private JTextField quantitel;
+	private JTextField prixl;
+	private JLabel label;
+	private JButton btnNewButton;
+	private JComboBox categoriel ;
+	private JComboBox fournisseurl;
+
+	
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ArticleImp window = new ArticleImp();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public ArticleImp() {
+		
+		initialize();
+
+		
+		frame = new JFrame();
+		frame.getContentPane().setBackground(new Color(204, 204, 255));
+		frame.getContentPane().setLayout(null);
+		frame.setSize(887, 460);
+		frame.setVisible(true);
+		frame.setTitle("Gestion Article");
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.LIGHT_GRAY);
+		panel.setBounds(0, 0, 177, 600);
+		frame.getContentPane().add(panel);
+		
+		menu.menuitems(frame,panel);
+	
+		JPanel panel_1 = new JPanel();
+		panel_1.setBounds(187, 314, 767, 141);
+		frame.getContentPane().add(panel_1);
+		panel_1.setLayout(new GridLayout(0, 1, 0, 0));
+		
+		
+		
+		
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setViewportBorder(null);
+		
+		
+		panel_1.add(scrollPane);
+		table.setForeground(new Color(0, 0, 0));
+		getAll(); 
+		
+		
+		
+		
+
+		
+		
+		JLabel lblLibell = new JLabel("Libell\u00E9 :");
+		lblLibell.setBounds(187, 67, 46, 14);
+		frame.getContentPane().add(lblLibell);
+		
+		
+		
+		
+		 btnAjouter = new JButton("Ajouter");
+		 btnAjouter.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		try {
+					ajouter();
+				} catch (allException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}catch (testVideException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		 	}
+		 });
+		btnAjouter.setBounds(187, 187, 89, 23);
+		frame.getContentPane().add(btnAjouter);
+		
+		 btnEdit = new JButton("Modifier");
+		 btnEdit.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		modifier(Integer.parseInt(String.valueOf(table.getValueAt(table.getSelectedRow(), 0))));
+		 	}
+		 });
+		btnEdit.setBounds(391, 187, 89, 23);
+		frame.getContentPane().add(btnEdit);
+		btnEdit.setEnabled(false);
+		
+		btndelete = new JButton("Supprimer");
+		btndelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				supprimer((int)table.getValueAt(table.getSelectedRow(), 0));
+				
+			}
+		});
+		btndelete.setBounds(555, 187, 124, 23);
+		frame.getContentPane().add(btndelete);
+		btndelete.setEnabled(false);
+		
+		chercher = new JTextField();
+		chercher.setBounds(629, 256, 86, 20);
+		frame.getContentPane().add(chercher);
+		chercher.setColumns(10);
+		
+		btnchercher = new JButton("Recherche");
+		btnchercher.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rechercher();
+			}
+		});
+		btnchercher.setBounds(725, 255, 105, 23);
+		frame.getContentPane().add(btnchercher);
+		
+		JLabel lblGestionCatgories = new JLabel("Gestion Articles");
+		lblGestionCatgories.setFont(new Font("Arial", Font.BOLD, 16));
+		lblGestionCatgories.setBounds(347, 11, 166, 31);
+		frame.getContentPane().add(lblGestionCatgories);
+		
+		JLabel lblNom = new JLabel("quantite");
+		lblNom.setBounds(187, 104, 46, 14);
+		frame.getContentPane().add(lblNom);
+		
+		JLabel lblPrnom = new JLabel("Fournisseur  :");
+		lblPrnom.setBounds(187, 143, 89, 14);
+		frame.getContentPane().add(lblPrnom);
+		
+		libellel = new JTextField();
+		libellel.setColumns(10);
+		libellel.setBounds(264, 67, 124, 20);
+		frame.getContentPane().add(libellel);
+		
+		quantitel = new JTextField();
+		quantitel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				label.setText("");
+			}
+		});
+		quantitel.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent ke) {
+				String value = quantitel.getText();
+	            int l = value.length();
+	            if (ke.getKeyChar() >= '0' && ke.getKeyChar() <= '9' || ke.getExtendedKeyCode() == KeyEvent.VK_BACK_SPACE) {
+	            	quantitel.setEditable(true);
+	               label.setText("");
+	            } else {
+	            	quantitel.setEditable(false);
+	               label.setText("Seulement des numéros sont autorisés");
+	            }
+			}
+		});
+		quantitel.setColumns(10);
+		quantitel.setBounds(264, 104, 124, 20);
+		frame.getContentPane().add(quantitel);
+		
+		JLabel lblTel = new JLabel("Prix :");
+		lblTel.setBounds(589, 70, 46, 14);
+		frame.getContentPane().add(lblTel);
+		
+		prixl = new JTextField();
+		prixl.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseExited(MouseEvent e) {
+				label.setText("");
+			}
+		});
+		prixl.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent ke) {
+				String value = prixl.getText();
+	            int l = value.length();
+	            if (ke.getKeyChar() >= '0' && ke.getKeyChar() <= '9' || ke.getExtendedKeyCode() == KeyEvent.VK_BACK_SPACE || ke.getExtendedKeyCode() == KeyEvent.VK_DECIMAL ) {
+	            	prixl.setEditable(true);
+	               label.setText("");
+	            } else {
+	            	prixl.setEditable(false);
+	               label.setText("Seulement des numéros sont autorisés");
+	            }
+			}
+		});
+		prixl.setColumns(10);
+		prixl.setBounds(690, 67, 124, 20);
+		frame.getContentPane().add(prixl);
+		
+		JLabel lblLibell_1_1 = new JLabel("Cat\u00E9gorie :");
+		lblLibell_1_1.setBounds(589, 107, 83, 14);
+		frame.getContentPane().add(lblLibell_1_1);
+		
+		label = new JLabel("");
+		label.setFont(new Font("Arial", Font.PLAIN, 15));
+		label.setForeground(Color.RED);
+		label.setBounds(302, 40, 327, 14);
+		frame.getContentPane().add(label);
+		
+		btnNewButton = new JButton("Actualiser");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				actualiser();
+			}
+		});
+		btnNewButton.setBounds(728, 187, 133, 23);
+		frame.getContentPane().add(btnNewButton);
+		
+		categoriel = new JComboBox();
+		categoriel.setBounds(690, 104, 124, 20);
+		frame.getContentPane().add(categoriel);
+		
+		fournisseurl = new JComboBox();
+		fournisseurl.setBounds(311, 140, 124, 20);
+		frame.getContentPane().add(fournisseurl);
+		
+		
+		categoriel.addItem("selectionner");
+		fournisseurl.addItem("selectionner");
+		categorieList();
+		fournisseurList();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	@Override
+	public void getAll() {
+		String[] columnNames = {"#",
+                "libelle",
+                "prix",
+                "quantite",
+                "nbVendre",
+                "categoie",
+                "fournisseur"
+               };
+		DefaultTableModel model = new DefaultTableModel();
+		model.setColumnIdentifiers(columnNames);
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				libellel.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 1)));
+				quantitel.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 3)));
+				prixl.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 2)));
+				categoriel.setSelectedItem(String.valueOf(table.getValueAt(table.getSelectedRow(), 5)));
+				fournisseurl.setSelectedItem(String.valueOf(table.getValueAt(table.getSelectedRow(), 6)));
+				
+				
+				btnAjouter.setEnabled(false);
+				btnEdit.setEnabled(true);
+				btndelete.setEnabled(true);
+				
+				
+			}
+		});
+		table.setFont(new Font("Arial", Font.PLAIN, 14));
+		table.setModel(model); 
+		//table.setBounds(187, 244, 767, 141);
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		
+		try {
+			
+		ps = cx.prepareStatement("select * from article ");
+		
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			model.addRow(new Object[]{rs.getInt(1),rs.getString(2),rs.getDouble(3),rs.getInt(4),rs.getInt(5),getTheLibelle(rs.getInt(6)),rs.getInt(7)});			
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	public void actualiser() {
+		getAll();
+		libellel.setText("");
+		quantitel.setText("");
+		prixl.setText("");
+		categoriel.setSelectedIndex(0);
+		fournisseurl.setSelectedIndex(0);
+		
+		btnAjouter.setEnabled(true);
+		btnEdit.setEnabled(false);
+		btndelete.setEnabled(false);
+		
+	}
+	@Override
+public void ajouter() throws allException, testVideException {
+		
+		
+		if(select()==1) throw new allException();
+		
+		
+		else if(select()==-1) {
+			Connection cx= SingletonConnection.getConnection();
+			PreparedStatement ps,ps1;
+			
+			testVide();
+			try {
+				
+				
+				
+			ps = cx.prepareStatement("INSERT INTO article (`libelle`, `prix`, `quantite`, `nbVendre`, `idCategorie`, `idFournisseur`) VALUES(?,?,?,?,?,?)");
+			
+			ps.setString(1,libellel.getText());
+			ps.setDouble(2,Double.parseDouble(prixl.getText()));
+			ps.setInt(3,Integer.parseInt(quantitel.getText()));
+			ps.setInt(4,0);
+			ps.setInt(5,getTheId(categoriel.getSelectedItem().toString()));
+			ps.setInt(6,Integer.parseInt(fournisseurl.getSelectedItem().toString()));
+			
+			
+			
+			ps.executeUpdate();
+			actualiser();
+
+			
+			}catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			}
+		
+		
+	}
+
+
+	@Override
+	public void modifier(int id) {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		
+		
+		try {
+		
+		ps = cx.prepareStatement("update article set  `libelle` = ?, `prix` = ?, `quantite` = ?, `nbVendre` = ?, `idCategorie`= ?, `idFournisseur`= ? where idArticle= ?");
+	
+		ps.setString(1,libellel.getText());
+		ps.setDouble(2,Double.parseDouble(prixl.getText()));
+		ps.setInt(3,Integer.parseInt(quantitel.getText()));
+		ps.setInt(4,0);
+		ps.setInt(5,getTheId(categoriel.getSelectedItem().toString()));
+		ps.setInt(6,Integer.parseInt(fournisseurl.getSelectedItem().toString()));
+		ps.setInt(7, id);
+		ps.executeUpdate();
+		actualiser();
+
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+public void supprimer(int id) {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		
+		try {
+		ps = cx.prepareStatement("DELETE from article where idArticle=?");
+		
+		
+		ps.setInt(1, id);
+		ps.executeUpdate();
+		actualiser();
+
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void rechercher() {
+		
+		String[] columnNames = {"#",
+                "libelle",
+                "prix",
+                "quantite",
+                "nbVendre",
+                "categoie",
+                "fournisseur"
+               };
+		DefaultTableModel model = new DefaultTableModel();
+		model.setColumnIdentifiers(columnNames);
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				libellel.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 0)));
+				quantitel.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 1)));
+				prixl.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 3)));
+				
+				btnAjouter.setEnabled(false);
+				btnEdit.setEnabled(true);
+				btndelete.setEnabled(true);
+				
+				
+			}
+		});
+		table.setFont(new Font("Arial", Font.PLAIN, 14));
+		table.setModel(model); 
+		
+	//	table.setBounds(187, 244, 767, 141);
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from article where libelle LIKE ? '%' ");
+		
+		ps.setString(1, chercher.getText());
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			model.addRow(new Object[]{rs.getInt(1),rs.getString(2),rs.getDouble(3),rs.getInt(4),rs.getInt(5),getTheLibelle(rs.getInt(6)),rs.getInt(7)});			
+			
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	
+	
+	
+}
+
+
+	@Override
+	public int select() {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from article where libelle LIKE  ? ");
+		ps.setString(1, libellel.getText());
+		rs=ps.executeQuery();
+		
+		if(rs.next()) {
+			return 1;
+		}
+		else return -1 ;
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	public void testVide() throws testVideException {
+		if(libellel.getText().length()==0 || quantitel.getText().length()==0  || prixl.getText().length()==0 || categoriel.getSelectedIndex()==0 || fournisseurl.getSelectedIndex()==0  ) throw new testVideException();
+	}
+	public void categorieList() {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from categorie ");
+		rs=ps.executeQuery();
+		while(rs.next()) {
+			categoriel.addItem(rs.getString(2));
+		}
+		
+		
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void fournisseurList() {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from fournisseur ");
+		rs=ps.executeQuery();
+		while(rs.next()) {
+			fournisseurl.addItem(rs.getString(1));
+			
+		}
+		
+		
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	public int getTheId(String s) {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from categorie where libelle =  ? ");
+		ps.setString(1, s);
+		rs=ps.executeQuery();
+		while(rs.next()) {
+			return rs.getInt(1);
+		}
+		
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+public String getTheLibelle(int id) {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from categorie where idCategorie =  ? ");
+		ps.setInt(1, id);
+		rs=ps.executeQuery();
+		while(rs.next()) {
+			return rs.getString(2);
+		}
+		
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+}

@@ -1,0 +1,98 @@
+package dao.entities;
+
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+
+import dao.CRUD;
+import shared.menu;
+
+import java.awt.Color;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.Font;
+import javax.swing.UIManager;
+import javax.swing.JTextField;
+
+public class CategorieImp implements CRUD{
+
+	private JFrame frame;
+	private JTextField txtGestionCatgories;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					CategorieImp window = new CategorieImp();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public CategorieImp() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.getContentPane().setBackground(new Color(204, 204, 255));
+		frame.getContentPane().setLayout(null);
+		frame.setVisible(true);
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.LIGHT_GRAY);
+		panel.setBounds(0, 0, 177, 443);
+		frame.getContentPane().add(panel);
+		
+		menu.menuitems(frame,panel);
+		
+		txtGestionCatgories = new JTextField();
+		txtGestionCatgories.setBackground(Color.GRAY);
+		txtGestionCatgories.setForeground(Color.WHITE);
+		txtGestionCatgories.setFont(new Font("Arial", Font.BOLD, 13));
+		txtGestionCatgories.setText("Gestion Cat\u00E9gories");
+		txtGestionCatgories.setBounds(358, 11, 143, 36);
+		frame.getContentPane().add(txtGestionCatgories);
+		txtGestionCatgories.setColumns(10);
+		
+	}
+
+	@Override
+	public void ajouter() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void modifier(int id, String req) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void supprimer(int id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rechercher(String parametre) {
+		// TODO Auto-generated method stub
+		
+	}
+}

@@ -1,0 +1,561 @@
+package dao.entities;
+
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+
+import dao.CRUD;
+import dao.SingletonConnection;
+import dao.entities.ArticleImp;
+import dao.exception.allException;
+import dao.exception.testVideException;
+import shared.menu;
+
+import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+public class ClientImp  implements CRUD{
+
+	private JFrame frame;
+	private JTable table = new JTable();
+	JButton btnAjouter;
+	JButton btnEdit;
+	JButton btndelete;
+	private JTextField chercher;
+	private JButton btnchercher;
+	private JTextField cinl;
+	private JTextField noml;
+	private JTextField prenoml;
+	private JTextField tell;
+	private JTextField adressel;
+	private JTextField codePostall;
+	private JLabel label;
+	private JButton btnNewButton;
+
+	
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ClientImp window = new ClientImp();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public ClientImp() {
+		
+		initialize();
+
+		
+		frame = new JFrame();
+		frame.getContentPane().setBackground(new Color(204, 204, 255));
+		frame.getContentPane().setLayout(null);
+		//frame.setSize(780, 460);
+		
+		frame.setVisible(true);
+		frame.setTitle("Gestion Clients");
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.LIGHT_GRAY);
+		panel.setBounds(0, 0, 177, 443);
+		
+		frame.getContentPane().add(panel);
+		
+		menu.menuitems(frame,panel);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBounds(187, 244, 487, 141);
+		frame.getContentPane().add(panel_1);
+		
+		getAll(); 
+		
+		
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setViewportBorder(null);
+		panel_1.add(scrollPane);
+		table.setForeground(new Color(0, 0, 0));
+		
+		JLabel lblLibell = new JLabel("cin:");
+		lblLibell.setBounds(187, 67, 46, 14);
+		frame.getContentPane().add(lblLibell);
+		
+		
+		
+		
+		 btnAjouter = new JButton("Ajouter");
+		 btnAjouter.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		try {
+					ajouter();
+				} catch (allException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}catch (testVideException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		 	}
+		 });
+		btnAjouter.setBounds(187, 187, 89, 23);
+		frame.getContentPane().add(btnAjouter);
+		
+		 btnEdit = new JButton("Modifier");
+		 btnEdit.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		modifier(Integer.parseInt(cinl.getText()));
+		 	}
+		 });
+		btnEdit.setBounds(302, 187, 89, 23);
+		frame.getContentPane().add(btnEdit);
+		btnEdit.setEnabled(false);
+		
+		btndelete = new JButton("Supprimer");
+		btndelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				supprimer((int)table.getValueAt(table.getSelectedRow(), 0));
+				
+			}
+		});
+		btndelete.setBounds(430, 187, 124, 23);
+		frame.getContentPane().add(btndelete);
+		btndelete.setEnabled(false);
+		
+		chercher = new JTextField();
+		chercher.setBounds(473, 219, 86, 20);
+		frame.getContentPane().add(chercher);
+		chercher.setColumns(10);
+		
+		btnchercher = new JButton("Recherche");
+		btnchercher.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rechercher();
+			}
+		});
+		btnchercher.setBounds(569, 218, 105, 23);
+		frame.getContentPane().add(btnchercher);
+		
+		JLabel lblGestionCatgories = new JLabel("Gestion Clients");
+		lblGestionCatgories.setFont(new Font("Arial", Font.BOLD, 16));
+		lblGestionCatgories.setBounds(347, 11, 166, 31);
+		frame.getContentPane().add(lblGestionCatgories);
+		
+		JLabel lblNom = new JLabel("Nom :");
+		lblNom.setBounds(187, 104, 46, 14);
+		frame.getContentPane().add(lblNom);
+		
+		JLabel lblPrnom = new JLabel("Pr\u00E9nom :");
+		lblPrnom.setBounds(187, 143, 67, 14);
+		frame.getContentPane().add(lblPrnom);
+		
+		cinl = new JTextField();
+		cinl.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseExited(MouseEvent e) {
+				label.setText("");
+			}
+		});
+		cinl.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent ke) {
+				String value = cinl.getText();
+	            int l = value.length();
+	            if (ke.getKeyChar() >= '0' && ke.getKeyChar() <= '9' || ke.getExtendedKeyCode() == KeyEvent.VK_BACK_SPACE) {
+	            	cinl.setEditable(true);
+	               label.setText("");
+	            } else {
+	            	cinl.setEditable(false);
+	            	
+	              label.setText("Seulement des numéros sont autorisés");
+	            }
+			}
+		});
+		cinl.setColumns(10);
+		cinl.setBounds(264, 67, 124, 20);
+		frame.getContentPane().add(cinl);
+		
+		noml = new JTextField();
+		noml.setColumns(10);
+		noml.setBounds(264, 104, 124, 20);
+		frame.getContentPane().add(noml);
+		
+		prenoml = new JTextField();
+		prenoml.setColumns(10);
+		prenoml.setBounds(264, 143, 124, 20);
+		frame.getContentPane().add(prenoml);
+		
+		JLabel lblTel = new JLabel("Tel :");
+		lblTel.setBounds(430, 70, 46, 14);
+		frame.getContentPane().add(lblTel);
+		
+		tell = new JTextField();
+		tell.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseExited(MouseEvent e) {
+				label.setText("");
+				}
+		});
+		tell.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent ke) {
+				String value = tell.getText();
+	            int l = value.length();
+	            if (ke.getKeyChar() >= '0' && ke.getKeyChar() <= '9' || ke.getExtendedKeyCode() == KeyEvent.VK_BACK_SPACE) {
+	            	tell.setEditable(true);
+	               label.setText("");
+	            } else {
+	            	tell.setEditable(false);
+	               label.setText("Seulement des numéros sont autorisés");
+	            }
+			}
+		});
+		tell.setColumns(10);
+		tell.setBounds(531, 67, 124, 20);
+		frame.getContentPane().add(tell);
+		
+		JLabel lblLibell_1_1 = new JLabel("Adresse  :");
+		lblLibell_1_1.setBounds(430, 107, 83, 14);
+		frame.getContentPane().add(lblLibell_1_1);
+		
+		adressel = new JTextField();
+		adressel.setColumns(10);
+		adressel.setBounds(531, 104, 124, 20);
+		frame.getContentPane().add(adressel);
+		
+		JLabel lblLibell_2_1 = new JLabel("Code Postal :");
+		lblLibell_2_1.setBounds(430, 146, 91, 14);
+		frame.getContentPane().add(lblLibell_2_1);
+		
+		codePostall = new JTextField();
+		codePostall.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent ke) {
+				String value = tell.getText();
+	            int l = value.length();
+	            if (ke.getKeyChar() >= '0' && ke.getKeyChar() <= '9' || ke.getExtendedKeyCode() == KeyEvent.VK_BACK_SPACE) {
+	            	codePostall.setEditable(true);
+	               label.setText("");
+	            } else {
+	            	codePostall.setEditable(false);
+	               label.setText("Seulement des numéros sont autorisés");
+	            }
+			}
+		});
+		codePostall.setColumns(10);
+		codePostall.setBounds(531, 143, 124, 20);
+		frame.getContentPane().add(codePostall);
+		
+		label = new JLabel("");
+		label.setFont(new Font("Arial", Font.PLAIN, 15));
+		label.setForeground(Color.RED);
+		label.setBounds(302, 40, 327, 14);
+		frame.getContentPane().add(label);
+		
+		btnNewButton = new JButton("Actualiser");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				actualiser();
+			}
+		});
+		btnNewButton.setBounds(577, 187, 133, 23);
+		frame.getContentPane().add(btnNewButton);
+		
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	@Override
+	public void getAll() {
+		String[] columnNames = {"cin",
+                "Nom",
+                "Prenom",
+                "tel",
+                "adresse",
+                "Code Postal"
+               };
+		DefaultTableModel model = new DefaultTableModel();
+		model.setColumnIdentifiers(columnNames);
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				cinl.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 0)));
+				noml.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 1)));
+				prenoml.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 2)));
+				tell.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 3)));
+				adressel.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 4)));
+				codePostall.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 5)));
+				
+				btnAjouter.setEnabled(false);
+				btnEdit.setEnabled(true);
+				btndelete.setEnabled(true);
+				
+				
+			}
+		});
+		table.setFont(new Font("Arial", Font.PLAIN, 14));
+		table.setModel(model); 
+		
+		table.setBounds(187, 50, 487, 306);
+		JButton supprimer = new JButton("supprimer");
+		supprimer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ArticleImp art = new ArticleImp();
+				frame.dispose();
+			}
+		});
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		
+		try {
+			
+		ps = cx.prepareStatement("select * from "+ testype());
+		
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			model.addRow(new Object[]{rs.getInt(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getString(5),rs.getInt(6)});			
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	public void actualiser() {
+		getAll();
+		cinl.setText("");
+		noml.setText("");
+		prenoml.setText("");
+		tell.setText("");
+		adressel.setText("");
+		codePostall.setText("");
+		
+		btnAjouter.setEnabled(true);
+		btnEdit.setEnabled(false);
+		btndelete.setEnabled(false);
+	}
+	@Override
+public void ajouter() throws allException, testVideException {
+		
+		
+		if(select()==1) throw new allException();
+		
+		
+		else if(select()==-1) {
+			Connection cx= SingletonConnection.getConnection();
+			PreparedStatement ps;
+			
+			testVide();
+			try {
+			ps = cx.prepareStatement("INSERT INTO "+testype()+" (`cin`, `nom`, `prenom`, `tel`, `adresse`, `codePostal`) VALUES(?,?,?,?,?,?)");
+			
+			ps.setInt(1,Integer.parseInt(cinl.getText()));
+			ps.setString(2,noml.getText());
+			ps.setString(3,prenoml.getText());
+			ps.setInt(4,Integer.parseInt(tell.getText()));
+			ps.setString(5,adressel.getText());
+			ps.setInt(6,Integer.parseInt(codePostall.getText()));
+			ps.executeUpdate();
+			actualiser();
+
+			
+			}catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			}
+		
+		
+	}
+
+
+	@Override
+	public void modifier(int id) {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		
+		
+		try {
+		
+		ps = cx.prepareStatement("update "+testype()+" set  `cin`= ? , `nom`= ? , `prenom` = ?, `tel` = ? , `adresse` =? , `codePostal` =? where cin= ?");
+	
+		ps.setInt(1,Integer.parseInt(cinl.getText()));
+		ps.setString(2,noml.getText());
+		ps.setString(3,prenoml.getText());
+		ps.setInt(4,Integer.parseInt(tell.getText()));
+		ps.setString(5,adressel.getText());
+		ps.setInt(6,Integer.parseInt(codePostall.getText()));
+		ps.setInt(7, id);
+		ps.executeUpdate();
+		actualiser();
+
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+public void supprimer(int id) {
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		
+		try {
+		ps = cx.prepareStatement("DELETE from "+testype()+" where cin=?");
+		
+		
+		ps.setInt(1, id);
+		ps.executeUpdate();
+		actualiser();
+
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void rechercher() {
+		
+		String[] columnNames = {"cin",
+                "Nom",
+                "Prenom",
+                "tel",
+                "adresse",
+                "Code Postal"
+               };
+		DefaultTableModel model = new DefaultTableModel();
+		model.setColumnIdentifiers(columnNames);
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				cinl.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 0)));
+				noml.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 1)));
+				prenoml.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 2)));
+				tell.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 3)));
+				adressel.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 4)));
+				codePostall.setText(String.valueOf(table.getValueAt(table.getSelectedRow(), 5)));
+				
+				btnAjouter.setEnabled(false);
+				btnEdit.setEnabled(true);
+				btndelete.setEnabled(true);
+				
+				
+			}
+		});
+		table.setFont(new Font("Arial", Font.PLAIN, 14));
+		table.setModel(model); 
+		
+		table.setBounds(187, 50, 487, 306);
+		
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from "+testype()+" where cin LIKE ? '%'   or nom LIKE ? '%' or prenom LIKE ? '%' ");
+		
+		ps.setString(1, chercher.getText());
+		ps.setString(2, chercher.getText());
+		ps.setString(3, chercher.getText());
+		rs=ps.executeQuery();
+		
+		while (rs.next()) {
+			model.addRow(new Object[]{rs.getInt(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getString(5),rs.getInt(6)});			
+					
+		}
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	
+	
+	
+}
+
+
+	@Override
+	public int select() {
+		Connection cx= SingletonConnection.getConnection();
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		try {
+		ps = cx.prepareStatement("select * from "+ testype() +" where cin LIKE  ? ");
+		ps.setString(1, cinl.getText());
+		rs=ps.executeQuery();
+		
+		if(rs.next()) {
+			return 1;
+		}
+		else return -1 ;
+		
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	public String testype() {
+		String user="";
+		if(this.getClass().getName().equals("FournisseurImp")) {
+			user="fournisseur";
+		}else if(this.getClass().getName().equals("ClientImp")) {
+			user="client";
+		}
+		String user1="client";
+		return user1;
+	}
+	public void testVide() throws testVideException {
+		if(cinl.getText().length()==0 || noml.getText().length()==0 || prenoml.getText().length()==0 || tell.getText().length()==0 || adressel.getText().length()==0 || codePostall.getText().length()==0 ) throw new testVideException();
+	}
+	
+}

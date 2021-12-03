@@ -1,0 +1,171 @@
+package dao.entities;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+public class Accueil {
+
+	private JFrame frame;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Accueil window = new Accueil();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public Accueil() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		
+		frame = new JFrame();
+		frame.getContentPane().setBackground(new Color(204, 204, 255));
+		frame.getContentPane().setLayout(null);
+		
+		JButton btnNewButton = new JButton("");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				 new CommandeImple();
+				frame.dispose();
+			}
+		});
+		btnNewButton.setIcon(new ImageIcon(Accueil.class.getResource("/img/gestion_commandes.png")));
+		btnNewButton.setBackground(Color.LIGHT_GRAY);
+		btnNewButton.setBounds(73, 11, 118, 112);
+		frame.getContentPane().add(btnNewButton);
+		
+		JLabel lblNewLabel = new JLabel("Commandes");
+		lblNewLabel.setFont(new Font("Arial", Font.BOLD, 15));
+		lblNewLabel.setBounds(83, 132, 107, 14);
+		frame.getContentPane().add(lblNewLabel);
+		
+		JButton btnNewButton_1 = new JButton("");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 new ClientImp();
+				frame.dispose();
+			}
+		});
+		btnNewButton_1.setIcon(new ImageIcon(Accueil.class.getResource("/img/client.png")));
+		btnNewButton_1.setBackground(Color.LIGHT_GRAY);
+		btnNewButton_1.setBounds(341, 11, 118, 112);
+		frame.getContentPane().add(btnNewButton_1);
+		
+		JLabel lblNewLabel_1 = new JLabel("Clients");
+		lblNewLabel_1.setFont(new Font("Arial", Font.BOLD, 15));
+		lblNewLabel_1.setBounds(369, 132, 64, 14);
+		frame.getContentPane().add(lblNewLabel_1);
+		
+		JButton btnNewButton_2 = new JButton("");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 new ArticleImp();
+				frame.dispose();
+			}
+		});
+		btnNewButton_2.setIcon(new ImageIcon(Accueil.class.getResource("/img/gestion_articles.png")));
+		btnNewButton_2.setBackground(Color.LIGHT_GRAY);
+		btnNewButton_2.setBounds(589, 11, 118, 112);
+		frame.getContentPane().add(btnNewButton_2);
+		
+		JLabel lblNewLabel_2 = new JLabel("Articles");
+		lblNewLabel_2.setFont(new Font("Arial", Font.BOLD, 15));
+		lblNewLabel_2.setBounds(621, 132, 70, 14);
+		frame.getContentPane().add(lblNewLabel_2);
+		
+		JButton btnNewButton_3 = new JButton("");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 new FournisseurImp();
+				frame.dispose();
+			}
+		});
+		btnNewButton_3.setIcon(new ImageIcon(Accueil.class.getResource("/img/gestion_fournisseur.png")));
+		btnNewButton_3.setBackground(Color.LIGHT_GRAY);
+		btnNewButton_3.setBounds(73, 157, 118, 112);
+		frame.getContentPane().add(btnNewButton_3);
+		
+		JLabel lblNewLabel_3 = new JLabel("Fournisseurs");
+		lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 15));
+		lblNewLabel_3.setBounds(83, 278, 107, 14);
+		frame.getContentPane().add(lblNewLabel_3);
+		
+		JButton btnNewButton_1_1 = new JButton("");
+		btnNewButton_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 new CategorieImp();
+				frame.dispose();
+			}
+		});
+		btnNewButton_1_1.setIcon(new ImageIcon(Accueil.class.getResource("/img/cat.png")));
+		btnNewButton_1_1.setBackground(Color.LIGHT_GRAY);
+		btnNewButton_1_1.setBounds(341, 157, 118, 112);
+		frame.getContentPane().add(btnNewButton_1_1);
+		
+		JLabel lblNewLabel_1_1 = new JLabel("Categories");
+		lblNewLabel_1_1.setFont(new Font("Arial", Font.BOLD, 15));
+		lblNewLabel_1_1.setBounds(351, 278, 89, 14);
+		frame.getContentPane().add(lblNewLabel_1_1);
+		
+		JButton btnNewButton_2_1 = new JButton("");
+		btnNewButton_2_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new RemiseImp();
+				frame.dispose();
+			}
+		});
+		btnNewButton_2_1.setIcon(new ImageIcon(Accueil.class.getResource("/img/gestion_remise.png")));
+		btnNewButton_2_1.setBackground(Color.LIGHT_GRAY);
+		btnNewButton_2_1.setBounds(589, 157, 118, 112);
+		frame.getContentPane().add(btnNewButton_2_1);
+		
+		JLabel lblNewLabel_2_1 = new JLabel("Remises");
+		lblNewLabel_2_1.setFont(new Font("Arial", Font.BOLD, 15));
+		lblNewLabel_2_1.setBounds(621, 278, 70, 14);
+		frame.getContentPane().add(lblNewLabel_2_1);
+		
+		JButton btnNewButton_4 = new JButton("");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 new ConnexionImp();
+				frame.dispose();
+			}
+		});
+		btnNewButton_4.setIcon(new ImageIcon(Accueil.class.getResource("/img/deco.png")));
+		btnNewButton_4.setBounds(341, 312, 118, 98);
+		frame.getContentPane().add(btnNewButton_4);
+		//frame.setSize(780, 460);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setSize(screenSize.width, screenSize.height);
+		frame.setVisible(true);
+		frame.setTitle("Accueil");
+		
+	}
+}
